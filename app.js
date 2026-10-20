@@ -1,53 +1,94 @@
 const $ = (selector) => document.querySelector(selector);
 const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
 const opening = $('.opening');
+const passage = $('.passage');
 const aperture = $('.aperture');
+const textMask = $('.hero-copy-mask');
 const heroImage = $('.hero-image');
-let frameRequested = false;
-let light = 'noon';
+const heroCopies = [...document.querySelectorAll('.hero-copy')];
+const passageTrack = $('.passage-track');
+const passageCards = [...document.querySelectorAll('.passage-photo')];
+const passageHeading = $('.passage-heading');
+const meter = $('.passage-progress i');
 const clamp = (n, a = 0, b = 1) => Math.min(b, Math.max(a, n));
-const smooth = (n) => n * n * (3 - 2 * n);
-const lights = { morning: 'sepia(.18) saturate(.65) brightness(1.05)', noon: 'saturate(.75)', dusk: 'sepia(.28) saturate(.9) brightness(.76) hue-rotate(-8deg)' };
-
-function renderOpening() {
-  frameRequested = false;
-  if (reduced.matches) return;
-  const viewport = window.innerHeight;
-  const progress = clamp(-opening.getBoundingClientRect().top / Math.max(1, opening.offsetHeight - viewport));
-  const p = smooth(clamp(progress / .82));
-  const mobile = window.innerWidth <= 600;
-  const startX = mobile ? 49 : 27;
-  const startY = mobile ? 31 : 42;
-  const aperturePath = `ellipse(${startX + (100 - startX) * p}% ${startY + (110 - startY) * p}% at ${63 + (50 - 63) * p}% ${55 + (50 - 55) * p}%)`;
-  aperture.style.clipPath = aperturePath;
-  $('.hero-copy-mask').style.clipPath = aperturePath;
-  $('.wordmark').style.transform = `translateY(${-progress * 130}px)`;
-  $('.wordmark').style.opacity = 1 - clamp(progress * 2.8);
-  heroImage.style.transform = `scale(${1.05 + progress * .07}) translateY(${progress * 2}%)`;
-  $('.image-shade').style.opacity = String(.5 + p * .5);
-  const white = smooth(clamp((progress - .13) / .22));
-  const r = Math.round(50 + (247 - 50) * white), g = Math.round(43 + (242 - 43) * white), b = Math.round(37 + (232 - 37) * white);
-  const color = `rgb(${r},${g},${b})`;
-  ['.hero-aside', '.hero-bottom'].forEach((selector) => { $(selector).style.color = color; });
-  document.querySelectorAll('.hero-copy').forEach((copy) => { copy.style.transform = `translateY(${-progress * 38}px)`; });
-  $('.aperture-note').style.opacity = 1 - clamp(progress * 5);
+const smooth = (n) => { const x = clamp(n); return x*x*(3-2*x); };
+let frameRequested = 0;
+let frames = 0;
+let light = 'noon';
+function diagnostics(mode) {
+  const data = document.documentElement.dataset;
+  data.renderFrames = String(frames); data.drawCalls = '0'; data.triangles = '0'; data.renderDpr = '1'; data.renderMode = mode;
 }
-function requestRender() { if (!frameRequested) { frameRequested = true; requestAnimationFrame(renderOpening); } }
-window.addEventListener('scroll', requestRender, { passive: true });
-window.addEventListener('resize', requestRender);
-reduced.addEventListener('change', () => {
-  aperture.style.clipPath = ''; $('.hero-copy-mask').style.clipPath = ''; heroImage.style.transform = '';
-  $('.wordmark').style.transform = ''; $('.wordmark').style.opacity = '';
-  $('.image-shade').style.opacity = ''; $('.aperture-note').style.opacity = '';
-  document.querySelectorAll('.hero-copy').forEach((copy) => { copy.style.transform = ''; });
-  ['.hero-aside', '.hero-bottom'].forEach((s) => { $(s).style.color = ''; });
-  renderOpening();
+function renderOpening() {
+  frameRequested = 0;
+  if (document.hidden) { diagnostics('hidden'); return; }
+  const viewport = innerHeight;
+  const heroRect = opening.getBoundingClientRect();
+  const passageRect = passage.getBoundingClientRect();
+  const heroOnscreen = heroRect.bottom > 0 && heroRect.top < viewport;
+  const passageOnscreen = passageRect.bottom > 0 && passageRect.top < viewport;
+  if (!heroOnscreen && !passageOnscreen) { passageCards.forEach(card=>{card.tabIndex=-1;});diagnostics('offscreen'); return; }
+  if (!reduced.matches && heroOnscreen) {
+    const progress = clamp(-heroRect.top / Math.max(1, opening.offsetHeight - viewport));
+    const p = smooth(progress / .82);
+    const mobile = innerWidth <= 600;
+    const startX = mobile ? 49 : 27, startY = mobile ? 31 : 42;
+    const path = `ellipse(${startX+(100-startX)*p}% ${startY+(110-startY)*p}% at ${63-13*p}% ${55-5*p}%)`;
+    aperture.style.clipPath = path; textMask.style.clipPath = path;
+    $('.wordmark').style.transform = `translate3d(0,${-progress*130}px,0)`;
+    $('.wordmark').style.opacity = 1-clamp(progress*2.8);
+    heroImage.style.transform = `translate3d(0,${progress*1.4}%,0) scale(${1.015+progress*.035})`;
+    $('.image-shade').style.opacity = String(.5+p*.5);
+    const white = smooth((progress-.13)/.22);
+    const color = `rgb(${Math.round(50+197*white)},${Math.round(43+199*white)},${Math.round(37+195*white)})`;
+    $('.hero-aside').style.color = color; $('.hero-bottom').style.color = color;
+    heroCopies.forEach(copy => { copy.style.transform = `translate3d(0,${-progress*38}px,0)`; });
+    $('.aperture-note').style.opacity = 1-clamp(progress*5);
+  }
+  if (!reduced.matches && passageOnscreen) {
+    const p = clamp(-passageRect.top / Math.max(1, passage.offsetHeight-viewport));
+    const mobile=innerWidth<=650;
+    const turns=[1,smooth((p-.1)/.4),smooth((p-.48)/.4)];
+    passageCards.forEach((card,index)=>{
+      const arrival=turns[index];
+      let x=0,y=0,z=0,angle=0;
+      if(index===0){x=-p*innerWidth*.17;y=-p*innerHeight*.08;z=-p*80;angle=-5-p*4;}
+      if(index===1){x=(1-arrival)*innerWidth*.55;y=(1-arrival)*innerHeight*.95-25;z=40;angle=24-arrival*18;}
+      if(index===2){x=-(1-arrival)*innerWidth*.8;y=(1-arrival)*innerHeight*.75;z=80;angle=-24+arrival*20;}
+      card.style.transform=`translate3d(${x}px,${y}px,${z}px) rotateX(${mobile?3:6}deg) rotate(${angle}deg)`;
+      const active=p<.34?0:p<.75?1:2;card.tabIndex=index===active?0:-1;
+    });
+    const fade = smooth((p-.03)/.36);
+    passageHeading.style.opacity = String(1-fade);
+    passageHeading.style.transform = `translate3d(${-fade*40}px,0,0)`;
+    meter.style.transform = `scaleX(${p})`;
+  }
+  frames++; diagnostics('idle');
+}
+function requestRender() { if (!frameRequested && !document.hidden) frameRequested = requestAnimationFrame(renderOpening); }
+window.addEventListener('scroll', requestRender, { passive:true });
+window.addEventListener('resize', () => { requestRender(); });
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) { cancelAnimationFrame(frameRequested); frameRequested=0; diagnostics('hidden'); }
+  else requestRender();
 });
-document.querySelectorAll('[data-light]').forEach((button) => button.addEventListener('click', () => {
-  light = button.dataset.light;
-  document.querySelectorAll('[data-light]').forEach((item) => item.setAttribute('aria-pressed', String(item === button)));
-  heroImage.style.filter = lights[light];
+reduced.addEventListener('change', () => {
+  aperture.style.clipPath=''; textMask.style.clipPath=''; heroImage.style.transform='';
+  $('.wordmark').style.transform=''; $('.wordmark').style.opacity=''; $('.image-shade').style.opacity=''; $('.aperture-note').style.opacity='';
+  heroCopies.forEach(copy => { copy.style.transform=''; });
+  $('.hero-aside').style.color=''; $('.hero-bottom').style.color='';
+  passageTrack.style.transform=''; passageHeading.style.opacity=''; passageHeading.style.transform='';passageCards.forEach(card=>{card.style.transform='';card.tabIndex=0;});
+  requestRender();
+});
+const lights = { morning:{color:'#daa15f',opacity:'.14'},noon:{color:'#ffffff',opacity:'0'},dusk:{color:'#223b5b',opacity:'.27'} };
+document.querySelectorAll('[data-light]').forEach(button => button.addEventListener('click', () => {
+  light=button.dataset.light; document.querySelectorAll('[data-light]').forEach(item => item.setAttribute('aria-pressed',String(item===button)));
+  $('.light-tone').style.background=lights[light].color; $('.light-tone').style.opacity=lights[light].opacity;
 }));
+function promotePassage(){passageCards.forEach(card=>{const image=card.querySelector('img');if(image.dataset.src){image.srcset=image.dataset.srcset;image.src=image.dataset.src;delete image.dataset.src;delete image.dataset.srcset;}});}
+if('IntersectionObserver'in window){const preload=new IntersectionObserver(entries=>{if(entries[0].isIntersecting){promotePassage();preload.disconnect();}},{rootMargin:'700px'});preload.observe(passage);}else promotePassage();
+document.documentElement.classList.add('js-scroll');
+passageCards.forEach((card,index)=>{card.tabIndex=reduced.matches?0:-1;if(index&&!reduced.matches)card.style.transform='translate3d(0,120svh,0)';});diagnostics('idle');
 
 if ('IntersectionObserver' in window) {
   document.documentElement.classList.add('js-ready');
@@ -56,16 +97,17 @@ if ('IntersectionObserver' in window) {
 }
 
 const rooms = [
-  { name: 'the sun room', image: 'suite.jpg', alt: 'An airy living space with warm wood, soft seating and natural light', detail: '42 M² / TWO GUESTS / SLOW MORNINGS', title: 'For the light<br><em>you wake up in.</em>', description: 'A warm, open living space. Linen, timber and a quiet spot by the window. Leave the curtains open and let the morning find you.' },
-  { name: 'the pool house', image: 'villa.jpg', alt: 'A sunlit white villa opening onto its turquoise pool', detail: '68 M² / TWO GUESTS / POOLSIDE DAYS', title: 'A little dip.<br><em>A little longer.</em>', description: 'Room to drift between inside and out. A shaded terrace, cool stone underfoot and the pool just a few steps from a very good book.' },
-  { name: 'the coastal loft', image: 'coast.jpg', alt: 'A colourful Mediterranean coastal village overlooking a blue inlet', detail: '55 M² / TWO GUESTS / COASTAL OUTLOOK', title: 'Keep the sea<br><em>in sight.</em>', description: 'An imagined hideaway above the coast. Salt in the air, room for two, and a view that makes doing nothing feel like an excellent plan.' }
+  { name: 'the sun room', image: 'suite', alt: 'An airy living space with warm wood, soft seating and natural light', detail: '42 M² / TWO GUESTS / SLOW MORNINGS', title: 'For the light<br><em>you wake up in.</em>', description: 'A warm, open living space. Linen, timber and a quiet spot by the window. Leave the curtains open and let the morning find you.' },
+  { name: 'the pool house', image: 'villa', alt: 'A sunlit white villa opening onto its turquoise pool', detail: '68 M² / TWO GUESTS / POOLSIDE DAYS', title: 'A little dip.<br><em>A little longer.</em>', description: 'Room to drift between inside and out. A shaded terrace, cool stone underfoot and the pool just a few steps from a very good book.' },
+  { name: 'the coastal loft', image: 'coast', alt: 'A colourful Mediterranean coastal village overlooking a blue inlet', detail: '55 M² / TWO GUESTS / COASTAL OUTLOOK', title: 'Keep the sea<br><em>in sight.</em>', description: 'An imagined hideaway above the coast. Salt in the air, room for two, and a view that makes doing nothing feel like an excellent plan.' }
 ];
 let activeRoom = 0;
 function selectRoom(index, moveFocus = false) {
   activeRoom = index;
   const room = rooms[index];
   document.querySelectorAll('[data-room]').forEach((button, i) => { button.setAttribute('aria-selected', String(i === index)); button.tabIndex = i === index ? 0 : -1; if (moveFocus && i === index) button.focus(); });
-  $('#room-image').src = `assets/images/${room.image}`;
+  $('#room-image').src = `assets/images/${room.image}-1280.webp`;
+  $('#room-image').srcset = [640,1280,2560].map(width => `assets/images/${room.image}-${width}.webp ${width}w`).join(', ');
   $('#room-image').alt = room.alt;
   $('#room-number').textContent = String(index + 1).padStart(2, '0');
   $('#room-detail').textContent = room.detail;
@@ -107,3 +149,19 @@ $('#download-plan').addEventListener('click', () => {
   const link = document.createElement('a'); link.href = url; link.download = 'my-aurel-escape.txt'; document.body.append(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
 });
 updateItinerary(); renderOpening();
+
+const photoDialog = $('.photo-dialog');
+const photoCaptions = {villa:'the long afternoon.',suite:'the open window.',garden:'the shade you found.'};
+document.querySelectorAll('[data-photo]').forEach(button => button.addEventListener('click', () => {
+  const slug=button.dataset.photo;
+  const image=$('#photo-detail');
+  image.src=`assets/images/${slug}-2560.webp`;
+  image.srcset=[640,1280,2560].map(width=>`assets/images/${slug}-${width}.webp ${width}w`).join(', ');
+  image.sizes='90vw'; image.alt=button.querySelector('img').alt;
+  $('#photo-caption').textContent=photoCaptions[slug];
+  photoDialog.showModal(); document.body.style.overflow='hidden';
+}));
+$('.photo-close').addEventListener('click',()=>photoDialog.close());
+photoDialog.addEventListener('close',()=>{document.body.style.overflow='';});
+photoDialog.addEventListener('click',event=>{if(event.target===photoDialog)photoDialog.close();});
+window.addEventListener('load',()=>{requestRender();},{once:true});

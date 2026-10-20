@@ -1,0 +1,149 @@
+[
+  {
+    "name": "coast",
+    "source": "https://images.unsplash.com/photo-1516483638261-f4dbaf036963?fit=max&w=3200&q=95&fm=jpg",
+    "sourceDimensions": [
+      2675,
+      4027
+    ],
+    "variants": [
+      {
+        "file": "coast-640.webp",
+        "width": 640,
+        "height": 963,
+        "bytes": 140708
+      },
+      {
+        "file": "coast-1280.webp",
+        "width": 1280,
+        "height": 1927,
+        "bytes": 423732
+      },
+      {
+        "file": "coast-2560.webp",
+        "width": 2560,
+        "height": 3854,
+        "bytes": 1297972
+      }
+    ]
+  },
+  {
+    "name": "villa",
+    "source": "https://images.unsplash.com/photo-1613490493576-7fde63acd811?fit=max&w=3200&q=95&fm=jpg",
+    "sourceDimensions": [
+      3200,
+      2133
+    ],
+    "variants": [
+      {
+        "file": "villa-640.webp",
+        "width": 640,
+        "height": 427,
+        "bytes": 39516
+      },
+      {
+        "file": "villa-1280.webp",
+        "width": 1280,
+        "height": 853,
+        "bytes": 120924
+      },
+      {
+        "file": "villa-2560.webp",
+        "width": 2560,
+        "height": 1706,
+        "bytes": 452620
+      }
+    ]
+  },
+  {
+    "name": "suite",
+    "source": "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?fit=max&w=3200&q=95&fm=jpg",
+    "sourceDimensions": [
+      3200,
+      2400
+    ],
+    "variants": [
+      {
+        "file": "suite-640.webp",
+        "width": 640,
+        "height": 480,
+        "bytes": 50530
+      },
+      {
+        "file": "suite-1280.webp",
+        "width": 1280,
+        "height": 960,
+        "bytes": 148198
+      },
+      {
+        "file": "suite-2560.webp",
+        "width": 2560,
+        "height": 1920,
+        "bytes": 489820
+      }
+    ]
+  },
+  {
+    "name": "garden",
+    "source": "https://images.unsplash.com/photo-1518495973542-4542c06a5843?fit=max&w=3200&q=95&fm=jpg",
+    "sourceDimensions": [
+      3200,
+      4800
+    ],
+    "variants": [
+      {
+        "file": "garden-640.webp",
+        "width": 640,
+        "height": 960,
+        "bytes": 248954
+      },
+      {
+        "file": "garden-1280.webp",
+        "width": 1280,
+        "height": 1920,
+        "bytes": 862624
+      },
+      {
+        "file": "garden-2560.webp",
+        "width": 2560,
+        "height": 3840,
+        "bytes": 3248672
+      }
+    ]
+  },
+  {
+    "name": "coast-wide",
+    "source": "https://images.unsplash.com/photo-1516483638261-f4dbaf036963?fit=max&w=3200&q=95&fm=jpg",
+    "sourceDimensions": [
+      2675,
+      4027
+    ],
+    "crop": [
+      0,
+      1130,
+      2675,
+      2802
+    ],
+    "cropPurpose": "Preserve desktop object-fit framing with a smaller decoded texture",
+    "variants": [
+      {
+        "file": "coast-wide-640.webp",
+        "width": 640,
+        "height": 400,
+        "bytes": 97734
+      },
+      {
+        "file": "coast-wide-1280.webp",
+        "width": 1280,
+        "height": 800,
+        "bytes": 317412
+      },
+      {
+        "file": "coast-wide-2560.webp",
+        "width": 2560,
+        "height": 1600,
+        "bytes": 877142
+      }
+    ]
+  }
+]
