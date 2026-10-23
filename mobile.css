@@ -1,0 +1,68 @@
+/* iPhone composition: content owns its height; visual stages never resize during browser-chrome changes. */
+@media (max-width: 700px), (max-height: 500px) and (pointer: coarse) {
+  html { -webkit-text-size-adjust: 100%; scroll-padding-top: 88px; }
+  body { overflow-wrap: break-word; }
+  button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
+  button, select, input, textarea { touch-action: manipulation; }
+  input, select, textarea { font-size: 16px; }
+  header, .site-header { padding-top: max(18px, env(safe-area-inset-top)); }
+  footer { padding-bottom: max(28px, env(safe-area-inset-bottom)); }
+  [data-reveal] { opacity: 1 !important; transform: none !important; }
+  dialog { overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+}
+
+@media (max-width: 700px), (max-height: 500px) and (pointer: coarse) {
+  .opening { height: 140svh; }
+  .opening-stage { height: 100svh; min-height: 0; display: flex; flex-direction: column; justify-content: flex-end; padding: 108px 6% max(20px, env(safe-area-inset-bottom)); gap: 24px; }
+  .aperture { clip-path: none !important; }
+  .image-shade { background: linear-gradient(180deg, #12252538, #12252526 20%, #122525c9); opacity: 1 !important; }
+  .wordmark { top: 17%; left: 5%; width: 90%; font-size: 24vw; color: #fff7e9; opacity: .4 !important; letter-spacing: -.045em; }
+  .hero-copy { position: relative; top: auto; left: auto; flex: 0; margin-top: auto; color: #fff9ee; transform: none !important; }
+  .hero-copy-mask { display: none; }
+  .hero-copy .eyebrow { max-width: none; font-size: 12px; margin-bottom: 14px; }
+  .hero-heading { font-size: clamp(46px, 13vw, 62px); line-height: 1.03; letter-spacing: -.025em; }
+  .hero-aside { position: relative; inset: auto; max-width: 280px; padding: 0; color: #fff9ee !important; background: none; font-size: 15px; line-height: 1.5; z-index: 4; }
+  .hero-bottom { position: relative; inset: auto; width: 100%; align-items: center; color: #fff9ee !important; gap: 14px; }
+  .scroll-note { max-width: 90px; font-size: 11px; }
+  .light-picker { gap: 3px; }
+  .light-picker > span { display: none; }
+  .light-picker button { font-size: 13px; min-width: 44px; }
+  .aperture-note { display: none; }
+  .intro-side { margin: 28px 0 0; max-width: none; font-size: 16px; line-height: 1.65; }
+  .intro h2 { font-size: clamp(35px, 9.6vw, 52px); letter-spacing: -.025em; }
+  .rooms-heading > p, #room-description, .stay-heading > p, .day-row { font-size: 16px; line-height: 1.6; }
+  .room-tabs button { overflow-wrap: normal; font-size: 13px; }
+  .js-scroll .passage { height: auto; padding: 64px 6%; overflow: visible; }
+  .js-scroll .passage-stage { position: relative; height: auto; min-height: 0; overflow: visible; perspective: none; }
+  .js-scroll .passage-heading { position: static; padding: 0; opacity: 1 !important; transform: none !important; }
+  .js-scroll .passage-heading h2 { font-size: clamp(46px, 14vw, 64px); }
+  .passage-heading .eyebrow { font-size: 11px; max-width: none; }
+  .js-scroll .passage-track { position: static; display: grid; grid-template-columns: minmax(0, 1fr); width: auto; height: auto; gap: 28px; margin: 36px 0; padding: 0; transform: none !important; }
+  .js-scroll .passage-photo, .js-scroll .passage-photo:nth-child(2), .js-scroll .passage-photo:nth-child(3) { position: relative; inset: auto; margin: 0; width: 100%; height: auto; max-height: none; padding: 10px; transform: none !important; will-change: auto; }
+  .js-scroll .passage-photo img { height: auto; aspect-ratio: 4/3; object-fit: cover; }
+  .passage-photo > span { font-size: 11px; line-height: 1.5; padding-top: 10px; }
+  .js-scroll .passage-footer { position: static; display: flex; font-size: 11px; gap: 16px; }
+  .passage-progress { display: none; }
+  .passage-footer > span:first-child, .passage-footer > span:last-child { max-width: none; width: 48%; }
+  .planner-fields { grid-template-columns: 1fr; }
+  .planner-fields select { max-width: 100%; font-size: 25px; }
+  .stay-summary { padding: 25px; }
+  .stay-summary h3 { font-size: 40px; }
+  .planner-note, .footer-line, .footer-bottom { font-size: 12px; line-height: 1.6; }
+  .photo-dialog { height: 100dvh; padding: max(80px, env(safe-area-inset-top)) 5% max(24px, env(safe-area-inset-bottom)); }
+  .photo-dialog img { max-height: 68dvh; max-width: 100%; }
+  .photo-close { top: max(16px, env(safe-area-inset-top)); }
+}
+@media (max-height: 500px) and (pointer: coarse) {
+  .opening { height: auto; }
+  .site-header { background: #f3efe5; }
+  .hero-aside { display: block; }
+  .opening-stage { position: relative; height: auto; min-height: 100svh; padding-top: 110px; }
+  .wordmark { font-size: 20vw; top: 20%; left: 47%; width: 48%; }
+  .hero-copy, .hero-aside { width: 47%; }
+  .hero-heading { font-size: 48px; }
+  .hero-bottom { margin-top: 10px; }
+  .room-layout, .planner { display: block; }
+  .room-tabs { display: flex; }
+}
+@media (prefers-reduced-motion: reduce) and (max-width: 700px) { .opening { height: auto; } .opening-stage { position: relative; } }

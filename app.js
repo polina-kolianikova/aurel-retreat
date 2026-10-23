@@ -32,7 +32,8 @@ function renderOpening() {
     diagnostics("hidden");
     return;
   }
-  const viewport = innerHeight;
+  const viewport = $(".opening-stage").clientHeight;
+  const mobileFlow = matchMedia("(max-width: 700px), (max-height: 500px) and (pointer: coarse)").matches;
   const heroRect = opening.getBoundingClientRect();
   const passageRect = passage.getBoundingClientRect();
   const heroOnscreen = heroRect.bottom > 0 && heroRect.top < viewport;
@@ -42,7 +43,7 @@ function renderOpening() {
       card.tabIndex = 0;
     });
   if (!heroOnscreen && !passageOnscreen) {
-    if (!reduced.matches)
+    if (!reduced.matches && !mobileFlow)
       passageCards.forEach((card) => {
         card.tabIndex = -1;
       });
@@ -73,7 +74,8 @@ function renderOpening() {
     });
     $(".aperture-note").style.opacity = 1 - clamp(progress * 5);
   }
-  if (!reduced.matches && passageOnscreen) {
+  if (mobileFlow) passageCards.forEach((card) => { card.tabIndex = 0; });
+  if (!reduced.matches && !mobileFlow && passageOnscreen) {
     const p = clamp(
       -passageRect.top / Math.max(1, passage.offsetHeight - viewport),
     );
@@ -194,7 +196,7 @@ if ("IntersectionObserver" in window) {
 } else promotePassage();
 document.documentElement.classList.add("js-scroll");
 passageCards.forEach((card, index) => {
-  card.tabIndex = reduced.matches ? 0 : -1;
+  card.tabIndex = reduced.matches || matchMedia("(max-width: 700px), (max-height: 500px) and (pointer: coarse)").matches ? 0 : -1;
   if (index && !reduced.matches)
     card.style.transform = "translate3d(0,120svh,0)";
 });
